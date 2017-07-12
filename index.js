@@ -3,6 +3,7 @@ const fs = require("fs");
 const Queue = require('file-queue').Queue;
 const child_process = require('child_process');
 const path = require('path');
+const querystring = require('querystring');
 
 const Shared = require('./lib/Shared.js');
 
@@ -28,8 +29,9 @@ class OpenclipartSearcher {
     }
 
     fetchCliparts(query) {
-        this.cfg.log('running query.');
-        return alfy.fetch(`https://openclipart.org/search/json/?query=${query}`, {maxAge: 60 * 1000}).then(data => {
+        const url = `https://openclipart.org/search/json/?${querystring.stringify({ query: query })}`;
+        this.cfg.log('running query.', url);
+        return alfy.fetch(url, {maxAge: 60 * 1000}).then(data => {
             const items = data.payload
                 .map(x => ({
                     title: x.title,
