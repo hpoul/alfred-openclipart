@@ -9,10 +9,10 @@
   },
   "dependencies": {
     "alfy": "^0.6.0",
-    "env-paths": "latest",
+    "env-paths": "^1.0.0",
     "file-queue": "^0.3.0",
     "fs-extra": "^3.0.1",
-    "read-pkg-up": "latest",
+    "read-pkg-up": "^2.0.0",
     "request": "^2.81.0"
   }
 }
