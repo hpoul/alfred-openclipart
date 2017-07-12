@@ -1,0 +1,18 @@
+{
+  "name": "alfred-openclipart",
+  "version": "0.1.0",
+  "main": "index.js",
+  "author": "Herbert Poul",
+  "license": "MIT",
+  "alfy": {
+    "updateNotification": false
+  },
+  "dependencies": {
+    "alfy": "^0.6.0",
+    "env-paths": "latest",
+    "file-queue": "^0.3.0",
+    "fs-extra": "^3.0.1",
+    "read-pkg-up": "latest",
+    "request": "^2.81.0"
+  }
+}
