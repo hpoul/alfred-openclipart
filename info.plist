@@ -54,7 +54,7 @@
 				<key>queuemode</key>
 				<integer>1</integer>
 				<key>runningsubtext</key>
-				<string></string>
+				<string>Searching on openclipart.org</string>
 				<key>script</key>
 				<string>./node_modules/.bin/run-node index.js "$1"</string>
 				<key>scriptargtype</key>
@@ -62,7 +62,7 @@
 				<key>scriptfile</key>
 				<string>./node_modules/.bin/run-node</string>
 				<key>subtext</key>
-				<string>Search openclipart</string>
+				<string>Search openclipart.org</string>
 				<key>title</key>
 				<string>Search openclipart</string>
 				<key>type</key>
