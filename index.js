@@ -25,7 +25,7 @@ class OpenclipartSearcher {
         this.queue.push({action: 'download', args: { url: clipart.svg.png_thumb, to: thumbnail }}, () => {
             // done.
         });
-        return null;
+        return './assets/images/matt-icons_image-loading-300px.png';
     }
 
     fetchCliparts(query) {
@@ -44,7 +44,7 @@ class OpenclipartSearcher {
             const output = {items: items};
 
             if (this.requireAsyncDownload) {
-                output.rerun = 1;
+                output.rerun = .5;
                 this.cfg.log('We need to fork child.');
 
                 const out = fs.openSync('./out.log', 'a');
