@@ -103,7 +103,7 @@ const _downloadClipart = async (cfg, clipart_id, clipart_url) => {
 };
 
 const runCopyClipart = async (cfg, clipart_id, clipart_url) => {
-    const path = _downloadClipart(cfg, clipart_id, clipart_url);
+    const path = await _downloadClipart(cfg, clipart_id, clipart_url);
     child_process.execSync(`osascript -e 'set the clipboard to POSIX file "${path}"'`);
 };
 const revealClipart = async (cfg, clipart_id, clipart_url) => {
