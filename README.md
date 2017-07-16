@@ -16,7 +16,7 @@ Simple Alfred workflow to search for cliparts on [openclipart.org](https://openc
 
 * Requires [Node.js](https://nodejs.org) >= 7.6
     * E.g. using homebrew `brew install node` 
-
+* Download workflow from https://github.com/hpoul/alfred-openclipart/releases
 
 ## Author
 
