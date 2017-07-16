@@ -17,7 +17,7 @@ class OpenclipartSearcher {
     }
 
     getThumbnailOrQueue(clipart) {
-        const thumbnail = this.cfg.paths.thumbnailDir + '/' + clipart.id + '.png';
+        const thumbnail = this.cfg.thumbnailCachePathForId(clipart.id);
         if (fs.existsSync(thumbnail)) {
             return thumbnail;
         }
@@ -36,9 +36,29 @@ class OpenclipartSearcher {
                 .map(x => ({
                     title: x.title,
                     subtitle: x.description,
-                    arg: x.detail_link,
+                    arg: querystring.stringify({action: "openurl", url: x.detail_link}),
                     icon: {path: this.getThumbnailOrQueue(x)},
                     quicklookurl: x.detail_link,
+                    variables: {
+                        action: "openurl",
+                    },
+                    mods: {
+                        alt: {
+                            "valid": true,
+                            "arg": querystring.stringify({action: "copysvg", clipart_id: x.id, clipart_url: x.svg.url}),
+                            "subtitle": "Copy SVG to clipboard",
+                            variables: {
+                                action: 'copysvg',
+                                clipart_id: x.id,
+                                clipart_url: x.svg.url,
+                            },
+                        },
+                        cmd: {
+                            "valid": true,
+                            "arg": querystring.stringify({action: "revealsvg", clipart_id: x.id, clipart_url: x.svg.url}),
+                            "subtitle": "Download SVG and Reveal in Finder",
+                        }
+                    }
                 }));
 
             const output = {items: items};
@@ -58,20 +78,43 @@ class OpenclipartSearcher {
                 child.disconnect();
                 child.unref();
             }
+            output.variables = { "action": "blubb" };
 
             console.log(JSON.stringify(output, null, '\t'));
 
+        }).catch((err) => {
+            console.log("Error while downloading/parsing search result.", err);
         });
     }
 
     fetchClipartsForAlfredQuery() {
-        return this.fetchCliparts(alfy.input);
+        return this.fetchCliparts(process.argv[3]);
     }
 }
 
-(async () => {
-    const cfg = await Shared.OpenclipartConfig.getConfig();
+const _downloadClipart = async (cfg, clipart_id, clipart_url) => {
+    cfg.log(`got clipart_id ${clipart_id}.`);
+    const path = cfg.svgCachePathForId(clipart_id);
+    if (!fs.existsSync()) {
+        const url = process.argv[3];
+        await cfg.downloadFile(clipart_url, path);
+    }
+    return path;
+};
 
+const runCopyClipart = async (cfg, clipart_id, clipart_url) => {
+    const path = _downloadClipart(cfg, clipart_id, clipart_url);
+    child_process.execSync(`osascript -e 'set the clipboard to POSIX file "${path}"'`);
+};
+const revealClipart = async (cfg, clipart_id, clipart_url) => {
+    const path = await _downloadClipart(cfg, clipart_id, clipart_url);
+    child_process.execSync(
+        `osascript -e 'tell application "Finder" to reveal POSIX file "${path}"' -e 'tell application "Finder" to activate'`);
+};
+
+const action = process.argv[2];
+
+const runSearch = async (cfg) => {
     const queue = new Queue(cfg.paths.queueDir, () => {
         cfg.log('Setup done.');
         return new OpenclipartSearcher(cfg, queue).fetchClipartsForAlfredQuery().then(() => {
@@ -79,6 +122,25 @@ class OpenclipartSearcher {
             queue.stop();
         });
     });
+};
+
+(async () => {
+    const cfg = await Shared.OpenclipartConfig.getConfig();
+
+    if (action === 'search') {
+        runSearch(cfg);
+    } else if (action === 'copysvg') {
+        runCopyClipart(process.env["clipart_id"], process.argv[3]);
+    } else if (action === 'runaction') {
+        const query = querystring.parse(process.argv[3]);
+        if (query['action'] === 'openurl') {
+            child_process.execSync(`open "${query['url']}"`)
+        } else if (query['action'] === 'copysvg') {
+            await runCopyClipart(cfg, query['clipart_id'], query['clipart_url']);
+        } else if (query['action'] === 'revealsvg') {
+            await revealClipart(cfg, query['clipart_id'], query['clipart_url']);
+        }
+    }
 
 })().then(() => {
 
