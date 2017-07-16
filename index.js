@@ -33,33 +33,36 @@ class OpenclipartSearcher {
         this.cfg.log('running query.', url);
         return alfy.fetch(url, {maxAge: 60 * 1000}).then(data => {
             const items = data.payload
-                .map(x => ({
-                    title: x.title,
-                    subtitle: x.description,
-                    arg: querystring.stringify({action: "openurl", url: x.detail_link}),
-                    icon: {path: this.getThumbnailOrQueue(x)},
-                    quicklookurl: x.detail_link,
-                    variables: {
-                        action: "openurl",
-                    },
-                    mods: {
-                        alt: {
-                            "valid": true,
-                            "arg": querystring.stringify({action: "copysvg", clipart_id: x.id, clipart_url: x.svg.url}),
-                            "subtitle": "Copy SVG to clipboard",
-                            variables: {
-                                action: 'copysvg',
-                                clipart_id: x.id,
-                                clipart_url: x.svg.url,
-                            },
+                .map(x => {
+                    const path = this.getThumbnailOrQueue(x);
+                    return ({
+                        title: x.title,
+                        subtitle: x.description,
+                        arg: querystring.stringify({action: "openurl", url: x.detail_link}),
+                        icon: {path: path},
+                        quicklookurl: path || x.detail_link,
+                        variables: {
+                            action: "openurl",
                         },
-                        cmd: {
-                            "valid": true,
-                            "arg": querystring.stringify({action: "revealsvg", clipart_id: x.id, clipart_url: x.svg.url}),
-                            "subtitle": "Download SVG and Reveal in Finder",
+                        mods: {
+                            alt: {
+                                "valid": true,
+                                "arg": querystring.stringify({action: "copysvg", clipart_id: x.id, clipart_url: x.svg.url}),
+                                "subtitle": "Copy SVG to clipboard",
+                                variables: {
+                                    action: 'copysvg',
+                                    clipart_id: x.id,
+                                    clipart_url: x.svg.url,
+                                },
+                            },
+                            cmd: {
+                                "valid": true,
+                                "arg": querystring.stringify({action: "revealsvg", clipart_id: x.id, clipart_url: x.svg.url}),
+                                "subtitle": "Download SVG and Reveal in Finder",
+                            }
                         }
-                    }
-                }));
+                    })
+                });
 
             const output = {items: items};
 
